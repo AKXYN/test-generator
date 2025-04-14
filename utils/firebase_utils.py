@@ -102,7 +102,6 @@ def save_core_values(user_id, core_values, id_token):
         
         print(f"\nSaving core values to URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
-        print(f"Core values to save: {json.dumps(core_values, indent=2)}")
         
         # Set up headers
         headers = {
@@ -146,33 +145,12 @@ def save_core_values(user_id, core_values, id_token):
             }
         }
         
-        print(f"Formatted data for Firestore: {json.dumps(data, indent=2)}")
-        
-        # Check if document exists
-        check_response = requests.get(
+        # Always use PATCH - Firestore will create the document if it doesn't exist
+        response = requests.patch(
             firestore_url,
-            headers=headers
+            headers=headers,
+            json=data
         )
-        
-        print(f"Check response status: {check_response.status_code}")
-        print(f"Check response content: {check_response.text}")
-        
-        if check_response.status_code == 404:
-            # Document doesn't exist, create it
-            print("Document doesn't exist, creating new document...")
-            response = requests.post(
-                firestore_url,
-                headers=headers,
-                json=data
-            )
-        else:
-            # Document exists, update it
-            print("Document exists, updating...")
-            response = requests.patch(
-                firestore_url,
-                headers=headers,
-                json=data
-            )
         
         print(f"Save response status: {response.status_code}")
         print(f"Save response content: {response.text}")
