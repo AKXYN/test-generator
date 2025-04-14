@@ -4,6 +4,9 @@ import json
 import streamlit as st
 from typing import List, Dict, Tuple, Optional
 
+# Global client variable
+client = None
+
 # Initialize OpenAI client with error handling
 try:
     # Get API key from secrets
@@ -16,13 +19,14 @@ try:
 except Exception as e:
     print(f"Warning: OpenAI client initialization failed: {str(e)}")
     print(f"Available secrets: {list(st.secrets['secrets'].keys())}")
-    client = None
 
 def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 10) -> Tuple[List[Dict[str, str]], Optional[str]]:
     """
     Generate questions based on core values using OpenAI's API.
     Returns a tuple of (questions, error_message).
     """
+    global client  # Declare client as global
+    
     try:
         # If OpenAI client is not initialized, try to initialize it again
         if not client:
