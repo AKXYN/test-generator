@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Initialize OpenAI client
-openai.api_key = os.getenv("OPENAI_API_KEY")
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def generate_questions(core_values, num_questions):
     """
@@ -51,8 +51,8 @@ Format each question as a JSON object with:
 
 Return only the JSON array of questions, no other text."""
 
-        # Call OpenAI API
-        response = openai.ChatCompletion.create(
+        # Call OpenAI API using the new syntax
+        response = client.chat.completions.create(
             model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are an expert in creating assessment questions for company core values."},
@@ -62,7 +62,7 @@ Return only the JSON array of questions, no other text."""
             max_tokens=2000
         )
         
-        # Extract and parse the response
+        # Extract and parse the response using the new syntax
         questions_text = response.choices[0].message.content
         try:
             # Try to parse the response as JSON
