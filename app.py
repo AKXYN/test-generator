@@ -45,12 +45,21 @@ def main():
 def login_page():
     st.subheader("Login")
     
+    # Debug information
+    with st.expander("Debug Information"):
+        st.write("Environment Variables:")
+        st.write("FIREBASE_API_KEY:", os.getenv("FIREBASE_API_KEY")[:5] + "..." if os.getenv("FIREBASE_API_KEY") else "Not set")
+        st.write("FIREBASE_AUTH_DOMAIN:", os.getenv("FIREBASE_AUTH_DOMAIN") or "Not set")
+        st.write("FIREBASE_PROJECT_ID:", os.getenv("FIREBASE_PROJECT_ID") or "Not set")
+        st.write("Session State:", st.session_state)
+    
     with st.form("login_form"):
         email = st.text_input("Email")
         password = st.text_input("Password", type="password")
         submit_button = st.form_submit_button("Login")
     
     if submit_button:
+        st.write("Attempting login with email:", email)
         user = login_user(email, password)
         if user:
             st.session_state.user = user
@@ -59,6 +68,7 @@ def login_page():
             st.experimental_rerun()
         else:
             st.error("Invalid email or password")
+            st.write("Login failed. Check the debug information above for details.")
     
     # Register link
     st.markdown("Don't have an account? [Register here](https://akxyn.github.io/core-values/auth.html)")
