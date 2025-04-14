@@ -70,7 +70,7 @@ Return only the JSON array of questions, no other text."""
 
         # Call OpenAI API
         response = client.chat.completions.create(
-            model="gpt-4-turbo-preview",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are an expert in creating assessment questions for company core values."},
                 {"role": "user", "content": prompt}
