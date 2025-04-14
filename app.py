@@ -182,7 +182,12 @@ def test_generation_page():
                 return
             
             # Generate test questions
-            questions = generate_questions(core_values, num_questions)
+            questions, error_msg = generate_questions(core_values, num_questions)
+            
+            if error_msg:
+                st.warning("⚠️ GPT-4 failed to generate questions. Using sample questions instead.")
+                st.error(f"Error details: {error_msg}")
+                st.info("This could be due to: 1) Invalid API key 2) API rate limits 3) Network issues")
             
             if not questions:
                 st.error("Failed to generate questions. Please try again.")
