@@ -1,6 +1,7 @@
 import os
 import openai
 from dotenv import load_dotenv
+import json
 
 # Load environment variables
 load_dotenv()
@@ -23,15 +24,63 @@ def generate_questions(core_values, num_questions):
         # Ensure num_questions is an integer
         num_questions = int(num_questions)
         
-        # For now, return a sample test
-        return create_sample_questions(core_values, num_questions)
+        # Format core values for the prompt
+        core_values_text = "\n".join([
+            f"- {cv['name']}: {cv['description']}"
+            for cv in core_values
+        ])
+        
+        # Create the prompt for OpenAI
+        prompt = f"""You are an expert in creating assessment questions for company core values.
+Given the following core values and their descriptions:
+
+{core_values_text}
+
+Generate {num_questions} multiple-choice questions that test a candidate's alignment with these core values.
+Each question should:
+1. Be specific to one or more core values
+2. Present a realistic workplace scenario
+3. Have 4 answer options that represent different levels of alignment with the core values
+4. Include scores for each option (8 for most aligned, 6 for somewhat aligned, 4 for somewhat misaligned, 2 for misaligned)
+
+Format each question as a JSON object with:
+- id: question number
+- text: the question text
+- core_values: list of core values this question tests
+- options: list of answer options, each with text and score
+
+Return only the JSON array of questions, no other text."""
+
+        # Call OpenAI API
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are an expert in creating assessment questions for company core values."},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=2000
+        )
+        
+        # Extract and parse the response
+        questions_text = response.choices[0].message.content
+        try:
+            # Try to parse the response as JSON
+            questions = json.loads(questions_text)
+            return questions
+        except json.JSONDecodeError:
+            print("Error parsing OpenAI response as JSON")
+            print("Response:", questions_text)
+            return create_sample_questions(core_values, num_questions)
+            
     except Exception as e:
         print(f"Error generating questions: {str(e)}")
-        return None
+        return create_sample_questions(core_values, num_questions)
 
 def create_sample_questions(core_values, num_questions):
     """
     Create sample questions based on core values.
+    This is a fallback function used when AI generation fails.
     
     Args:
         core_values (list): List of core values
