@@ -117,12 +117,9 @@ def core_values_page():
             "description": description
         }
         st.session_state.core_values.append(new_core_value)
-        success = save_core_values(user_id, st.session_state.core_values, id_token)
-        if success:
-            st.success(f"Core value '{name}' added successfully!")
-            st.rerun()
-        else:
-            st.error("Failed to save core value. Please try again.")
+        save_core_values(user_id, st.session_state.core_values, id_token)
+        st.success(f"Core value '{name}' added successfully!")
+        st.rerun()
     
     # Navigation buttons
     col1, col2 = st.columns(2)
@@ -133,11 +130,8 @@ def core_values_page():
             st.rerun()
     with col2:
         if st.button("Generate Test"):
-            if not st.session_state.core_values:
-                st.error("Please add at least one core value before generating a test.")
-            else:
-                st.session_state.page = "generate_test"
-                st.rerun()
+            st.session_state.page = "generate_test"
+            st.rerun()
 
 # Test generation page
 def test_generation_page():
