@@ -43,9 +43,7 @@ def main():
     if "user" not in st.session_state:
         login_page()
     else:
-        if st.session_state.page == "main":
-            main_page()
-        elif st.session_state.page == "core_values":
+        if st.session_state.page == "core_values":
             core_values_page()
         elif st.session_state.page == "test_generation":
             test_generation_page()
@@ -264,41 +262,6 @@ def test_generation_page():
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
             st.rerun()
-
-def main_page():
-    """Main dashboard page after login."""
-    st.title("Core Values Test Generator")
-    
-    # Get user information
-    user = st.session_state.user
-    user_id = user.get("uid") or user.get("localId")
-    company_name = user.get("email", "").split("@")[1].split(".")[0]
-    
-    # Welcome message
-    st.write(f"Welcome, {user.get('email', 'User')}!")
-    
-    # Display core values if they exist
-    if st.session_state.core_values:
-        st.subheader("Your Core Values")
-        for value in st.session_state.core_values:
-            st.write(f"- {value}")
-    
-    # Navigation buttons
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Manage Core Values"):
-            st.session_state.page = "core_values"
-            st.rerun()
-    with col2:
-        if st.button("Generate Test"):
-            st.session_state.page = "test_generation"
-            st.rerun()
-    
-    # Logout button
-    if st.button("Logout"):
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-        st.rerun()
 
 if __name__ == "__main__":
     main()
