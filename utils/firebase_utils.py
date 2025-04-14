@@ -8,11 +8,14 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 # Firebase configuration
-FIREBASE_API_KEY = os.getenv("FIREBASE_API_KEY")
-FIREBASE_PROJECT_ID = os.getenv("FIREBASE_PROJECT_ID")
-FIREBASE_DATABASE_URL = f"https://{FIREBASE_PROJECT_ID}.firebaseio.com"
-FIREBASE_AUTH_URL = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_API_KEY}"
-FIREBASE_FIRESTORE_URL = f"https://firestore.googleapis.com/v1/projects/{FIREBASE_PROJECT_ID}/databases/(default)/documents"
+FIREBASE_CONFIG = {
+    "apiKey": "AIzaSyCuRBnVEgZ4EVFi6ZvIthFm_IUsLxD22bc",
+    "authDomain": "corevaluesapp-9ca55.firebaseapp.com",
+    "projectId": "corevaluesapp-9ca55",
+    "storageBucket": "corevaluesapp-9ca55.appspot.com",
+    "messagingSenderId": "110268466622836450181",
+    "appId": "1:894079508319:web:8c7cc5a0389b87939d20ea"
+}
 
 # Authentication functions
 def login_user(email, password):
@@ -27,28 +30,12 @@ def login_user(email, password):
         dict: User data if login successful, None otherwise
     """
     try:
-        # Get Firebase config from environment variables
-        firebase_config = {
-            "apiKey": os.getenv("FIREBASE_API_KEY"),
-            "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
-            "projectId": os.getenv("FIREBASE_PROJECT_ID"),
-            "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
-            "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
-            "appId": os.getenv("FIREBASE_APP_ID")
-        }
-        
-        # Debug: Print all environment variables (without sensitive values)
-        print("Environment Variables Check:")
-        for key in firebase_config:
-            value = firebase_config[key]
-            if value:
-                masked_value = value[:5] + "..." if len(value) > 5 else "***"
-                print(f"{key}: {masked_value}")
-            else:
-                print(f"{key}: Not set!")
+        print("Using hardcoded Firebase config")
+        print(f"API Key: {FIREBASE_CONFIG['apiKey'][:5]}...")
+        print(f"Auth Domain: {FIREBASE_CONFIG['authDomain']}")
         
         # Get Firestore URL for authentication
-        firestore_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_config['apiKey']}"
+        firestore_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FIREBASE_CONFIG['apiKey']}"
         
         # Set up headers
         headers = {
