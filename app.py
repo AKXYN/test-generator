@@ -31,14 +31,6 @@ if "page" not in st.session_state:
 # Main function
 def main():
     """Main function to run the Streamlit app."""
-    # Display available secrets (for debugging)
-    if "user" in st.session_state:
-        st.sidebar.title("Debug Information")
-        with st.sidebar.expander("Available Secrets"):
-            st.write("Secret Keys Available:")
-            for key in st.secrets.keys():
-                st.write(f"- {key}")
-    
     # Navigation
     if "user" not in st.session_state:
         login_page()
@@ -50,13 +42,8 @@ def main():
 
 # Login page
 def login_page():
+    st.title("Core Values Test Generator")
     st.subheader("Login")
-    
-    # Debug information
-    with st.expander("Debug Information"):
-        st.write("Using Firebase configuration with App ID: 1:894079508319:web:8c7cc5a0389b87939d20ea")
-        st.write("Firebase Project ID: corevaluesapp-9ca55")
-        st.write("Session State:", st.session_state)
     
     with st.form("login_form"):
         email = st.text_input("Email")
@@ -64,7 +51,6 @@ def login_page():
         submit_button = st.form_submit_button("Login")
     
     if submit_button:
-        st.write("Attempting login with email:", email)
         user = login_user(email, password)
         if user:
             st.session_state.user = user
@@ -73,7 +59,6 @@ def login_page():
             st.rerun()
         else:
             st.error("Invalid email or password")
-            st.write("Login failed. Check the debug information above for details.")
     
     # Register link
     st.markdown("Don't have an account? [Register here](https://akxyn.github.io/core-values/auth.html)")
@@ -85,11 +70,6 @@ def core_values_page():
     # Get user ID from session state
     user_id = st.session_state.user.get("uid") or st.session_state.user.get("localId")
     id_token = st.session_state.user.get("idToken")
-    
-    # Debug information
-    with st.expander("Debug Information"):
-        st.write("User ID:", user_id)
-        st.write("Session State:", st.session_state)
     
     # Load existing core values
     if not st.session_state.core_values:
@@ -169,15 +149,6 @@ def test_generation_page():
     # Get test name and number of questions
     test_name = st.text_input("Test Name", "Core Values Assessment")
     num_questions = st.number_input("Number of Questions", min_value=5, max_value=20, value=10)
-    
-    # Debug information
-    with st.expander("Debug Information"):
-        st.write("User ID:", user_id)
-        st.write("Session State:", st.session_state)
-        
-        # Get core values from the database
-        core_values = get_core_values(user_id, id_token)
-        st.write("Core Values from Database:", core_values)
     
     if st.button("Generate Test"):
         with st.spinner("Generating test questions..."):
