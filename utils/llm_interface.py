@@ -6,23 +6,16 @@ from typing import List, Dict, Tuple, Optional
 
 # Initialize OpenAI client with error handling
 try:
-    # Try to get API key from Streamlit secrets first
+    # Get API key from secrets
     api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
-    print(f"API key from secrets: {'Found' if api_key else 'Not found'}")
+    print(f"API key from secrets: {api_key[:5]}...")  # Print first 5 chars for debugging
     
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY not found in secrets")
-    
-    # Initialize OpenAI client with minimal configuration
-    client = openai.OpenAI(
-        api_key=api_key,
-        # Explicitly set proxies to None to avoid any proxy-related issues
-        proxies=None
-    )
+    # Initialize OpenAI client
+    client = openai.OpenAI(api_key=api_key)
     print("OpenAI client initialized successfully")
 except Exception as e:
     print(f"Warning: OpenAI client initialization failed: {str(e)}")
-    print(f"Available secrets: {list(st.secrets.keys()) if hasattr(st, 'secrets') else 'No secrets available'}")
+    print(f"Available secrets: {list(st.secrets['secrets'].keys())}")
     client = None
 
 def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 10) -> Tuple[List[Dict[str, str]], Optional[str]]:
@@ -31,11 +24,15 @@ def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 1
     Returns a tuple of (questions, error_message).
     """
     try:
-        # If OpenAI client is not initialized, use sample questions
+        # If OpenAI client is not initialized, try to initialize it again
         if not client:
-            error_msg = "OpenAI client not initialized. Check your OPENAI_API_KEY in Streamlit secrets."
-            print(error_msg)
-            return create_sample_questions(core_values, num_questions), error_msg
+            try:
+                api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
+                client = openai.OpenAI(api_key=api_key)
+            except Exception as e:
+                error_msg = f"OpenAI client initialization failed: {str(e)}"
+                print(error_msg)
+                return create_sample_questions(core_values, num_questions), error_msg
         
         # Ensure num_questions is an integer
         num_questions = int(num_questions)
