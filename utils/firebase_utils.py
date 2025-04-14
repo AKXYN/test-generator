@@ -245,7 +245,7 @@ def get_core_values(user_id, id_token):
 # Test functions
 def save_test(user_id, test_data, id_token):
     """
-    Save a test to Firestore.
+    Save a test to Firestore in a format compatible with the dashboard.
     
     Args:
         user_id (str): User ID
@@ -268,14 +268,29 @@ def save_test(user_id, test_data, id_token):
             "Content-Type": "application/json"
         }
         
-        # Format test data for Firestore
+        # Get current date for start and end dates
+        current_date = datetime.now()
+        # Set start date to today and end date to 30 days from now
+        start_date = current_date
+        end_date = current_date + timedelta(days=30)
+        
+        # Format test data for Firestore with snake_case field names and required fields
         formatted_data = {
             "fields": {
                 "name": {"stringValue": test_data["name"]},
                 "company": {"stringValue": test_data["company"]},
-                "coreValues": {
+                "core_values": {
                     "arrayValue": {
-                        "values": [{"stringValue": cv["name"]} for cv in test_data["core_values"]]
+                        "values": [
+                            {
+                                "mapValue": {
+                                    "fields": {
+                                        "name": {"stringValue": cv["name"]},
+                                        "description": {"stringValue": cv.get("description", "")}
+                                    }
+                                }
+                            } for cv in test_data["core_values"]
+                        ]
                     }
                 },
                 "questions": {
@@ -305,10 +320,13 @@ def save_test(user_id, test_data, id_token):
                         ]
                     }
                 },
-                "createdAt": {"timestampValue": datetime.now().isoformat() + "Z"},
-                "updatedAt": {"timestampValue": datetime.now().isoformat() + "Z"},
-                "userId": {"stringValue": user_id},
-                "status": {"stringValue": "draft"}
+                "created_at": {"timestampValue": current_date.isoformat() + "Z"},
+                "updated_at": {"timestampValue": current_date.isoformat() + "Z"},
+                "start_date": {"timestampValue": start_date.isoformat() + "Z"},
+                "end_date": {"timestampValue": end_date.isoformat() + "Z"},
+                "user_id": {"stringValue": user_id},
+                "status": {"stringValue": "draft"},
+                "students": {"arrayValue": {"values": []}}  # Empty students array
             }
         }
         
@@ -324,7 +342,7 @@ def save_test(user_id, test_data, id_token):
         print(f"Firestore response status: {response.status_code}")
         print(f"Firestore response content: {response.text}")
         
-        if response.status_code == 200:
+        if response.status_code == 200:  # Firestore returns 200 for successful creation
             # Extract test ID from response
             data = response.json()
             test_id = data["name"].split("/")[-1]
