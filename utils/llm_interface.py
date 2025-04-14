@@ -7,17 +7,25 @@ import streamlit as st
 try:
     # Try to get API key from Streamlit secrets first
     api_key = st.secrets.get("OPENAI_API_KEY")
+    print(f"API key from secrets: {'Found' if api_key else 'Not found'}")
     
     # If not found in secrets, try environment variable (for local development)
     if not api_key:
         api_key = os.getenv("OPENAI_API_KEY")
+        print(f"API key from env: {'Found' if api_key else 'Not found'}")
     
     if not api_key:
         raise ValueError("OPENAI_API_KEY not found in secrets or environment variables")
     
+    # Verify the API key format
+    if not api_key.startswith("sk-"):
+        raise ValueError("Invalid API key format. API key should start with 'sk-'")
+    
     client = openai.OpenAI(api_key=api_key)
+    print("OpenAI client initialized successfully")
 except Exception as e:
     print(f"Warning: OpenAI client initialization failed: {str(e)}")
+    print(f"Available secrets: {list(st.secrets.keys()) if hasattr(st, 'secrets') else 'No secrets available'}")
     client = None
 
 def generate_questions(core_values, num_questions):
