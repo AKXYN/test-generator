@@ -7,22 +7,18 @@ from typing import List, Dict, Tuple, Optional
 # Initialize OpenAI client with error handling
 try:
     # Try to get API key from Streamlit secrets first
-    api_key = st.secrets.get("OPENAI_API_KEY")
+    api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
     print(f"API key from secrets: {'Found' if api_key else 'Not found'}")
     
-    # If not found in secrets, try environment variable (for local development)
     if not api_key:
-        api_key = os.getenv("OPENAI_API_KEY")
-        print(f"API key from env: {'Found' if api_key else 'Not found'}")
+        raise ValueError("OPENAI_API_KEY not found in secrets")
     
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY not found in secrets or environment variables")
-    
-    # Verify the API key format
-    if not api_key.startswith("sk-"):
-        raise ValueError("Invalid API key format. API key should start with 'sk-'")
-    
-    client = openai.OpenAI(api_key=api_key)
+    # Initialize OpenAI client with minimal configuration
+    client = openai.OpenAI(
+        api_key=api_key,
+        # Explicitly set proxies to None to avoid any proxy-related issues
+        proxies=None
+    )
     print("OpenAI client initialized successfully")
 except Exception as e:
     print(f"Warning: OpenAI client initialization failed: {str(e)}")
@@ -35,14 +31,11 @@ def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 1
     Returns a tuple of (questions, error_message).
     """
     try:
-        # Get API key from nested secrets structure
-        api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
-        
-        if not api_key:
-            raise ValueError("OpenAI API key not found in secrets")
-        
-        # Initialize OpenAI client with just the API key
-        client = openai.OpenAI(api_key=api_key)
+        # If OpenAI client is not initialized, use sample questions
+        if not client:
+            error_msg = "OpenAI client not initialized. Check your OPENAI_API_KEY in Streamlit secrets."
+            print(error_msg)
+            return create_sample_questions(core_values, num_questions), error_msg
         
         # Ensure num_questions is an integer
         num_questions = int(num_questions)
@@ -105,13 +98,6 @@ def create_sample_questions(core_values, num_questions):
     """
     Create sample questions based on core values.
     This is a fallback function used when AI generation fails.
-    
-    Args:
-        core_values (list): List of core values
-        num_questions (int): Number of questions to generate
-        
-    Returns:
-        list: List of sample questions
     """
     # Ensure num_questions is an integer
     num_questions = int(num_questions)
