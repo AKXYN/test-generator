@@ -97,8 +97,8 @@ def save_core_values(user_id, core_values, id_token):
         bool: True if successful, False otherwise
     """
     try:
-        # Get Firestore URL for core values - using a simpler document path
-        firestore_url = f"{FIREBASE_FIRESTORE_URL}/users/{user_id}/core_values"
+        # Get Firestore URL for core values
+        firestore_url = f"{FIREBASE_FIRESTORE_URL}/users/{user_id}/core_values/core_values"
         
         print(f"\nSaving core values to URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
@@ -194,8 +194,8 @@ def get_core_values(user_id, id_token):
         list: List of core values
     """
     try:
-        # Get Firestore URL for core values - using a simpler document path
-        firestore_url = f"{FIREBASE_FIRESTORE_URL}/users/{user_id}/core_values"
+        # Get Firestore URL for core values
+        firestore_url = f"{FIREBASE_FIRESTORE_URL}/users/{user_id}/core_values/core_values"
         
         print(f"\nFetching core values from URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
