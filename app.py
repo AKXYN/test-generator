@@ -68,6 +68,12 @@ def login_page():
 def core_values_page():
     st.subheader("Define Your Core Values")
     
+    # Display available secrets
+    with st.expander("Available Secrets"):
+        st.write("Secret Keys Available:")
+        for key in st.secrets.keys():
+            st.write(f"- {key}")
+    
     # Get user ID from session state
     user_id = st.session_state.user.get("uid") or st.session_state.user.get("localId")
     id_token = st.session_state.user.get("idToken")
