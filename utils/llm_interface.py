@@ -1,13 +1,9 @@
 import os
 import openai
-from dotenv import load_dotenv
 import json
 
-# Load environment variables
-load_dotenv()
-
-# Initialize OpenAI client
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client with direct API key
+openai.api_key = "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"
 
 def generate_questions(core_values, num_questions):
     """
