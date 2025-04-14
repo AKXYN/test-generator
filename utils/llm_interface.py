@@ -41,7 +41,7 @@ def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 1
         if not api_key:
             raise ValueError("OpenAI API key not found in secrets")
         
-        # Initialize OpenAI client
+        # Initialize OpenAI client with just the API key
         client = openai.OpenAI(api_key=api_key)
         
         # Ensure num_questions is an integer
@@ -74,7 +74,7 @@ Format each question as a JSON object with:
 
 Return only the JSON array of questions, no other text."""
 
-        # Call OpenAI API using the new syntax
+        # Call OpenAI API
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
@@ -85,7 +85,7 @@ Return only the JSON array of questions, no other text."""
             max_tokens=2000
         )
         
-        # Extract and parse the response using the new syntax
+        # Extract and parse the response
         questions_text = response.choices[0].message.content
         try:
             # Try to parse the response as JSON
