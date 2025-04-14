@@ -324,7 +324,7 @@ def save_test(user_id, test_data, id_token):
         print(f"Firestore response status: {response.status_code}")
         print(f"Firestore response content: {response.text}")
         
-        if response.status_code == 201:
+        if response.status_code == 200:
             # Extract test ID from response
             data = response.json()
             test_id = data["name"].split("/")[-1]
