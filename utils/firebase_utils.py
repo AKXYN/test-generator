@@ -110,7 +110,29 @@ def save_core_values(user_id, core_values, id_token):
         }
         
         # Format core values for Firestore
-        values = [{"stringValue": cv} for cv in core_values]
+        # Convert each core value object to a map value
+        values = []
+        for cv in core_values:
+            if isinstance(cv, dict):
+                # If it's already a dictionary with name and description
+                values.append({
+                    "mapValue": {
+                        "fields": {
+                            "name": {"stringValue": cv.get("name", "")},
+                            "description": {"stringValue": cv.get("description", "")}
+                        }
+                    }
+                })
+            else:
+                # If it's a string or other format, convert to a simple map
+                values.append({
+                    "mapValue": {
+                        "fields": {
+                            "name": {"stringValue": str(cv)},
+                            "description": {"stringValue": ""}
+                        }
+                    }
+                })
         
         # Set up request data
         data = {
@@ -125,6 +147,8 @@ def save_core_values(user_id, core_values, id_token):
                 }
             }
         }
+        
+        print(f"Saving data: {json.dumps(data, indent=2)}")
         
         # Check if document exists
         check_response = requests.get(
@@ -194,9 +218,24 @@ def get_core_values(user_id, id_token):
         if response.status_code == 200:
             # Extract core values from response
             data = response.json()
-            if "fields" in data:
+            if "fields" in data and "values" in data["fields"]:
                 core_values = data["fields"]["values"]["arrayValue"]["values"]
-                return [cv["stringValue"] for cv in core_values]
+                # Convert each map value to a dictionary
+                result = []
+                for cv in core_values:
+                    if "mapValue" in cv:
+                        fields = cv["mapValue"]["fields"]
+                        result.append({
+                            "name": fields.get("name", {}).get("stringValue", ""),
+                            "description": fields.get("description", {}).get("stringValue", "")
+                        })
+                    else:
+                        # Handle legacy format or other formats
+                        result.append({
+                            "name": cv.get("stringValue", ""),
+                            "description": ""
+                        })
+                return result
             return []
         elif response.status_code == 404:
             # Document doesn't exist yet, return empty list
