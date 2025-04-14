@@ -63,7 +63,7 @@ def login_page():
             st.session_state.user = user
             st.session_state.page = "core_values"
             st.success("Login successful!")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.error("Invalid email or password")
             st.write("Login failed. Check the debug information above for details.")
@@ -100,7 +100,7 @@ def core_values_page():
                 if st.button("Delete", key=f"delete_{i}"):
                     st.session_state.core_values.pop(i)
                     save_core_values(user_id, st.session_state.core_values, id_token)
-                    st.experimental_rerun()
+                    st.rerun()
     else:
         st.info("No core values found. Please add some below.")
     
@@ -119,7 +119,7 @@ def core_values_page():
         st.session_state.core_values.append(new_core_value)
         save_core_values(user_id, st.session_state.core_values, id_token)
         st.success(f"Core value '{name}' added successfully!")
-        st.experimental_rerun()
+        st.rerun()
     
     # Navigation buttons
     col1, col2 = st.columns(2)
@@ -127,11 +127,11 @@ def core_values_page():
         if st.button("Back to Login"):
             st.session_state.user = None
             st.session_state.page = "login"
-            st.experimental_rerun()
+            st.rerun()
     with col2:
         if st.button("Generate Test"):
             st.session_state.page = "generate_test"
-            st.experimental_rerun()
+            st.rerun()
 
 # Test generation page
 def test_generation_page():
@@ -212,12 +212,12 @@ def test_generation_page():
     with col1:
         if st.button("Back to Core Values"):
             st.session_state.page = "core_values"
-            st.experimental_rerun()
+            st.rerun()
     with col2:
         if st.button("Logout"):
             for key in list(st.session_state.keys()):
                 del st.session_state[key]
-            st.experimental_rerun()
+            st.rerun()
 
 if __name__ == "__main__":
     main()
