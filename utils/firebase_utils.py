@@ -17,53 +17,81 @@ FIREBASE_FIRESTORE_URL = f"https://firestore.googleapis.com/v1/projects/{FIREBAS
 # Authentication functions
 def login_user(email, password):
     """
-    Verify user credentials using Firebase REST API.
+    Login a user with email and password.
     
     Args:
-        email (str): User email
-        password (str): User password
+        email (str): User's email
+        password (str): User's password
         
     Returns:
-        User object if successful, None otherwise
+        dict: User data if login successful, None otherwise
     """
     try:
-        print(f"Attempting to login with email: {email}")
-        print(f"Using Firebase API Key: {FIREBASE_API_KEY[:5]}...")
-        print(f"Using Firebase Auth URL: {FIREBASE_AUTH_URL}")
+        # Get Firebase config from environment variables
+        firebase_config = {
+            "apiKey": os.getenv("FIREBASE_API_KEY"),
+            "authDomain": os.getenv("FIREBASE_AUTH_DOMAIN"),
+            "projectId": os.getenv("FIREBASE_PROJECT_ID"),
+            "storageBucket": os.getenv("FIREBASE_STORAGE_BUCKET"),
+            "messagingSenderId": os.getenv("FIREBASE_MESSAGING_SENDER_ID"),
+            "appId": os.getenv("FIREBASE_APP_ID")
+        }
         
-        # Send authentication request to Firebase
-        auth_data = {
+        # Debug: Print all environment variables (without sensitive values)
+        print("Environment Variables Check:")
+        for key in firebase_config:
+            value = firebase_config[key]
+            if value:
+                masked_value = value[:5] + "..." if len(value) > 5 else "***"
+                print(f"{key}: {masked_value}")
+            else:
+                print(f"{key}: Not set!")
+        
+        # Get Firestore URL for authentication
+        firestore_url = f"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={firebase_config['apiKey']}"
+        
+        # Set up headers
+        headers = {
+            "Content-Type": "application/json"
+        }
+        
+        # Set up request data
+        data = {
             "email": email,
             "password": password,
             "returnSecureToken": True
         }
-        print(f"Auth request data: {auth_data}")
         
+        print(f"\nAttempting login with:")
+        print(f"URL: {firestore_url}")
+        print(f"Email: {email}")
+        print(f"Headers: {headers}")
+        
+        # Make the request to Firebase
         response = requests.post(
-            FIREBASE_AUTH_URL,
-            json=auth_data
+            firestore_url,
+            headers=headers,
+            json=data
         )
         
-        print(f"Response status code: {response.status_code}")
+        print(f"\nFirebase response:")
+        print(f"Status code: {response.status_code}")
         print(f"Response content: {response.text}")
         
         if response.status_code == 200:
-            data = response.json()
-            # Create a user object with the necessary information
-            user = {
-                "uid": data.get("localId"),
-                "email": data.get("email"),
-                "emailVerified": data.get("emailVerified", False),
-                "displayName": data.get("displayName", ""),
-                "idToken": data.get("idToken")
-            }
-            print(f"Login successful, user: {user}")
-            return user
-        
-        print(f"Login failed: {response.text}")
-        return None
+            # Extract user data from response
+            user_data = response.json()
+            print(f"Login successful for user: {user_data.get('email')}")
+            return user_data
+        else:
+            print(f"Login failed with status code: {response.status_code}")
+            print(f"Error message: {response.text}")
+            return None
+            
     except Exception as e:
-        print(f"Login failed with exception: {str(e)}")
+        print(f"Error in login_user: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
         return None
 
 # Core values functions
