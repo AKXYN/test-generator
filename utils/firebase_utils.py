@@ -110,11 +110,9 @@ def save_core_values(user_id, core_values, id_token):
         }
         
         # Format core values for Firestore
-        # Convert each core value object to a map value
         values = []
         for cv in core_values:
             if isinstance(cv, dict):
-                # If it's already a dictionary with name and description
                 values.append({
                     "mapValue": {
                         "fields": {
@@ -124,7 +122,6 @@ def save_core_values(user_id, core_values, id_token):
                     }
                 })
             else:
-                # If it's a string or other format, convert to a simple map
                 values.append({
                     "mapValue": {
                         "fields": {
@@ -199,12 +196,16 @@ def get_core_values(user_id, id_token):
         
         print(f"\nFetching core values from URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
+        print(f"Full URL being used: {firestore_url}")
+        print(f"Project ID from config: {FIREBASE_CONFIG['projectId']}")
         
         # Set up headers
         headers = {
             "Authorization": f"Bearer {id_token}",
             "Content-Type": "application/json"
         }
+        
+        print(f"Request headers: {headers}")
         
         # Make the request to Firestore
         response = requests.get(
@@ -218,6 +219,8 @@ def get_core_values(user_id, id_token):
         if response.status_code == 200:
             # Extract core values from response
             data = response.json()
+            print(f"Parsed JSON response: {json.dumps(data, indent=2)}")
+            
             if "fields" in data and "values" in data["fields"]:
                 core_values = data["fields"]["values"]["arrayValue"]["values"]
                 # Convert each map value to a dictionary
@@ -235,10 +238,12 @@ def get_core_values(user_id, id_token):
                             "name": cv.get("stringValue", ""),
                             "description": ""
                         })
+                print(f"Processed core values: {json.dumps(result, indent=2)}")
                 return result
+            print("No fields or values found in response")
             return []
         elif response.status_code == 404:
-            # Document doesn't exist yet, return empty list
+            print("Document not found (404)")
             return []
         else:
             print(f"Error getting core values: {response.status_code}")
