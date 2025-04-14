@@ -99,8 +99,11 @@ def core_values_page():
             with col2:
                 if st.button("Delete", key=f"delete_{i}"):
                     st.session_state.core_values.pop(i)
-                    save_core_values(user_id, st.session_state.core_values, id_token)
-                    st.rerun()
+                    if save_core_values(user_id, st.session_state.core_values, id_token):
+                        st.success("Core value deleted successfully!")
+                        st.rerun()
+                    else:
+                        st.error("Failed to delete core value. Please try again.")
     else:
         st.info("No core values found. Please add some below.")
     
@@ -117,9 +120,13 @@ def core_values_page():
             "description": description
         }
         st.session_state.core_values.append(new_core_value)
-        save_core_values(user_id, st.session_state.core_values, id_token)
-        st.success(f"Core value '{name}' added successfully!")
-        st.rerun()
+        if save_core_values(user_id, st.session_state.core_values, id_token):
+            st.success(f"Core value '{name}' added successfully!")
+            st.rerun()
+        else:
+            st.error("Failed to save core value. Please try again.")
+            # Remove the core value from session state if save failed
+            st.session_state.core_values.pop()
     
     # Navigation buttons
     col1, col2 = st.columns(2)
@@ -130,8 +137,12 @@ def core_values_page():
             st.rerun()
     with col2:
         if st.button("Generate Test"):
-            st.session_state.page = "generate_test"
-            st.rerun()
+            # Ensure core values are saved before proceeding
+            if save_core_values(user_id, st.session_state.core_values, id_token):
+                st.session_state.page = "generate_test"
+                st.rerun()
+            else:
+                st.error("Failed to save core values. Please try again before proceeding.")
 
 # Test generation page
 def test_generation_page():
