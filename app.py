@@ -47,10 +47,8 @@ def login_page():
     
     # Debug information
     with st.expander("Debug Information"):
-        st.write("Environment Variables:")
-        st.write("FIREBASE_API_KEY:", os.getenv("FIREBASE_API_KEY")[:5] + "..." if os.getenv("FIREBASE_API_KEY") else "Not set")
-        st.write("FIREBASE_AUTH_DOMAIN:", os.getenv("FIREBASE_AUTH_DOMAIN") or "Not set")
-        st.write("FIREBASE_PROJECT_ID:", os.getenv("FIREBASE_PROJECT_ID") or "Not set")
+        st.write("Using hardcoded Firebase configuration")
+        st.write("Firebase Project ID: corevaluesapp-9ca55")
         st.write("Session State:", st.session_state)
     
     with st.form("login_form"):
