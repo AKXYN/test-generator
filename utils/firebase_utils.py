@@ -102,6 +102,7 @@ def save_core_values(user_id, core_values, id_token):
         
         print(f"\nSaving core values to URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
+        print(f"Core values to save: {json.dumps(core_values, indent=2)}")
         
         # Set up headers
         headers = {
@@ -145,7 +146,7 @@ def save_core_values(user_id, core_values, id_token):
             }
         }
         
-        print(f"Saving data: {json.dumps(data, indent=2)}")
+        print(f"Formatted data for Firestore: {json.dumps(data, indent=2)}")
         
         # Check if document exists
         check_response = requests.get(
@@ -153,8 +154,12 @@ def save_core_values(user_id, core_values, id_token):
             headers=headers
         )
         
+        print(f"Check response status: {check_response.status_code}")
+        print(f"Check response content: {check_response.text}")
+        
         if check_response.status_code == 404:
             # Document doesn't exist, create it
+            print("Document doesn't exist, creating new document...")
             response = requests.post(
                 firestore_url,
                 headers=headers,
@@ -162,16 +167,19 @@ def save_core_values(user_id, core_values, id_token):
             )
         else:
             # Document exists, update it
+            print("Document exists, updating...")
             response = requests.patch(
                 firestore_url,
                 headers=headers,
                 json=data
             )
         
-        print(f"Firestore response status: {response.status_code}")
-        print(f"Firestore response content: {response.text}")
+        print(f"Save response status: {response.status_code}")
+        print(f"Save response content: {response.text}")
         
-        return response.status_code in [200, 201]
+        success = response.status_code in [200, 201]
+        print(f"Save operation {'successful' if success else 'failed'}")
+        return success
             
     except Exception as e:
         print(f"Error in save_core_values: {str(e)}")
