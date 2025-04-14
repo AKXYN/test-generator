@@ -70,9 +70,15 @@ def core_values_page():
     
     # Display available secrets
     with st.expander("Available Secrets"):
-        st.write("Secret Keys Available:")
-        for key in st.secrets.keys():
-            st.write(f"- {key}")
+        st.write("Raw secrets structure:")
+        st.write(st.secrets)
+        st.write("Type of st.secrets:", type(st.secrets))
+        st.write("Keys in st.secrets:", dir(st.secrets))
+        
+        try:
+            st.write("Secrets as dict:", dict(st.secrets))
+        except Exception as e:
+            st.write("Error converting to dict:", str(e))
     
     # Get user ID from session state
     user_id = st.session_state.user.get("uid") or st.session_state.user.get("localId")
