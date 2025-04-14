@@ -1,13 +1,24 @@
 import os
 import openai
 import json
-from dotenv import load_dotenv
+import streamlit as st
 
-# Load environment variables
-load_dotenv()
-
-# Initialize OpenAI client
-client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Initialize OpenAI client with error handling
+try:
+    # Try to get API key from Streamlit secrets first
+    api_key = st.secrets.get("OPENAI_API_KEY")
+    
+    # If not found in secrets, try environment variable (for local development)
+    if not api_key:
+        api_key = os.getenv("OPENAI_API_KEY")
+    
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY not found in secrets or environment variables")
+    
+    client = openai.OpenAI(api_key=api_key)
+except Exception as e:
+    print(f"Warning: OpenAI client initialization failed: {str(e)}")
+    client = None
 
 def generate_questions(core_values, num_questions):
     """
@@ -21,6 +32,12 @@ def generate_questions(core_values, num_questions):
         tuple: (questions, error_message) where error_message is None if successful
     """
     try:
+        # If OpenAI client is not initialized, use sample questions
+        if not client:
+            error_msg = "OpenAI client not initialized. Check your OPENAI_API_KEY in Streamlit secrets or .env file."
+            print(error_msg)
+            return create_sample_questions(core_values, num_questions), error_msg
+
         # Ensure num_questions is an integer
         num_questions = int(num_questions)
         
