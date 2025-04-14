@@ -47,7 +47,7 @@ def login_page():
     
     # Debug information
     with st.expander("Debug Information"):
-        st.write("Using hardcoded Firebase configuration")
+        st.write("Using Firebase configuration with App ID: 1:894079508319:web:8c7cc5a0389b87939d20ea")
         st.write("Firebase Project ID: corevaluesapp-9ca55")
         st.write("Session State:", st.session_state)
     
