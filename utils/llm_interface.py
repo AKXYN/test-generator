@@ -1,9 +1,13 @@
 import os
 import openai
 import json
+from dotenv import load_dotenv
 
-# Initialize OpenAI client with direct API key
-openai.api_key = "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"
+# Load environment variables
+load_dotenv()
+
+# Initialize OpenAI client
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 def generate_questions(core_values, num_questions):
     """
@@ -14,7 +18,7 @@ def generate_questions(core_values, num_questions):
         num_questions (int): Number of questions to generate
         
     Returns:
-        list: List of generated questions
+        tuple: (questions, error_message) where error_message is None if successful
     """
     try:
         # Ensure num_questions is an integer
@@ -63,15 +67,16 @@ Return only the JSON array of questions, no other text."""
         try:
             # Try to parse the response as JSON
             questions = json.loads(questions_text)
-            return questions
+            return questions, None
         except json.JSONDecodeError:
-            print("Error parsing OpenAI response as JSON")
-            print("Response:", questions_text)
-            return create_sample_questions(core_values, num_questions)
+            error_msg = f"Failed to parse OpenAI response as JSON. Response: {questions_text}"
+            print(error_msg)
+            return create_sample_questions(core_values, num_questions), error_msg
             
     except Exception as e:
-        print(f"Error generating questions: {str(e)}")
-        return create_sample_questions(core_values, num_questions)
+        error_msg = f"Error generating questions: {str(e)}"
+        print(error_msg)
+        return create_sample_questions(core_values, num_questions), error_msg
 
 def create_sample_questions(core_values, num_questions):
     """
