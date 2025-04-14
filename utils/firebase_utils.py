@@ -306,9 +306,13 @@ def save_test(user_id, test_data, id_token):
                     }
                 },
                 "createdAt": {"timestampValue": datetime.now().isoformat() + "Z"},
-                "updatedAt": {"timestampValue": datetime.now().isoformat() + "Z"}
+                "updatedAt": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "userId": {"stringValue": user_id},
+                "status": {"stringValue": "draft"}
             }
         }
+        
+        print(f"Formatted test data: {json.dumps(formatted_data, indent=2)}")
         
         # Make the request to Firestore
         response = requests.post(
@@ -323,7 +327,9 @@ def save_test(user_id, test_data, id_token):
         if response.status_code == 201:
             # Extract test ID from response
             data = response.json()
-            return data["name"].split("/")[-1]
+            test_id = data["name"].split("/")[-1]
+            print(f"Test created with ID: {test_id}")
+            return test_id
         else:
             print(f"Error saving test: {response.status_code}")
             print(f"Response: {response.text}")
