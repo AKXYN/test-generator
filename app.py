@@ -141,6 +141,8 @@ def test_generation_page():
         return
     
     user = st.session_state.user
+    # Get user ID from either uid or localId
+    user_id = user.get("uid") or user.get("localId")
     company_name = user.get("email", "").split("@")[1].split(".")[0]
     id_token = user.get("idToken")
     
@@ -152,17 +154,17 @@ def test_generation_page():
     
     # Debug information
     with st.expander("Debug Information"):
-        st.write("User ID:", user.get("uid"))
+        st.write("User ID:", user_id)
         st.write("Session State:", st.session_state)
         
         # Get core values from the database
-        core_values = get_core_values(user["uid"], id_token)
+        core_values = get_core_values(user_id, id_token)
         st.write("Core Values from Database:", core_values)
     
     if st.button("Generate Test"):
         with st.spinner("Generating test questions..."):
             # Get core values from the database
-            core_values = get_core_values(user["uid"], id_token)
+            core_values = get_core_values(user_id, id_token)
             
             if not core_values:
                 st.error("Please add core values first.")
@@ -183,7 +185,7 @@ def test_generation_page():
             }
             
             # Save test to Firebase
-            test_id = save_test(user["uid"], test_data, id_token)
+            test_id = save_test(user_id, test_data, id_token)
             
             if test_id:
                 st.success("Test generated successfully!")
