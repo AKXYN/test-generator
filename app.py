@@ -30,16 +30,35 @@ if "page" not in st.session_state:
 
 # Main function
 def main():
-    # App title
-    st.title("Core Values Test Generator")
+    """Main function to run the Streamlit app."""
+    st.set_page_config(
+        page_title="Core Values Test Generator",
+        page_icon="📝",
+        layout="wide"
+    )
     
-    # Page routing
-    if st.session_state.page == "login":
+    # Initialize session state
+    if "page" not in st.session_state:
+        st.session_state.page = "main"
+    
+    # Display available secrets (for debugging)
+    if "user" in st.session_state:
+        st.sidebar.title("Debug Information")
+        with st.sidebar.expander("Available Secrets"):
+            st.write("Secret Keys Available:")
+            for key in st.secrets.keys():
+                st.write(f"- {key}")
+    
+    # Navigation
+    if "user" not in st.session_state:
         login_page()
-    elif st.session_state.page == "core_values":
-        core_values_page()
-    elif st.session_state.page == "generate_test":
-        test_generation_page()
+    else:
+        if st.session_state.page == "main":
+            main_page()
+        elif st.session_state.page == "core_values":
+            core_values_page()
+        elif st.session_state.page == "test_generation":
+            test_generation_page()
 
 # Login page
 def login_page():
@@ -139,7 +158,7 @@ def core_values_page():
         if st.button("Generate Test"):
             # Ensure core values are saved before proceeding
             if save_core_values(user_id, st.session_state.core_values, id_token):
-                st.session_state.page = "generate_test"
+                st.session_state.page = "test_generation"
                 st.rerun()
             else:
                 st.error("Failed to save core values. Please try again before proceeding.")
