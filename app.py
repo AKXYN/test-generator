@@ -187,7 +187,26 @@ def test_generation_page():
             if error_msg:
                 st.warning("⚠️ GPT-4 failed to generate questions. Using sample questions instead.")
                 st.error(f"Error details: {error_msg}")
-                st.info("This could be due to: 1) Invalid API key 2) API rate limits 3) Network issues")
+                
+                # Show more specific help based on the error
+                if "not initialized" in error_msg.lower():
+                    st.info("""
+                    The OpenAI API key is not properly configured. To fix this:
+                    
+                    1. Go to your Streamlit Cloud dashboard
+                    2. Select your app
+                    3. Click on 'Settings' (gear icon)
+                    4. Go to 'Secrets' tab
+                    5. Add your OpenAI API key in this format:
+                    ```
+                    [secrets]
+                    OPENAI_API_KEY = "your-api-key-here"
+                    ```
+                    6. Make sure to include the [secrets] section header
+                    7. Save and redeploy your app
+                    """)
+                else:
+                    st.info("This could be due to: 1) Invalid API key 2) API rate limits 3) Network issues")
             
             if not questions:
                 st.error("Failed to generate questions. Please try again.")
