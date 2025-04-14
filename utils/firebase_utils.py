@@ -256,8 +256,8 @@ def save_test(user_id, test_data, id_token):
         str: Test ID if successful, None otherwise
     """
     try:
-        # Get Firestore URL for tests - using the top-level tests collection
-        firestore_url = f"{FIREBASE_FIRESTORE_URL}/tests"
+        # Get Firestore URL for tests - using the tests subcollection
+        firestore_url = f"{FIREBASE_FIRESTORE_URL}/users/{user_id}/tests"
         
         print(f"\nSaving test to URL: {firestore_url}")
         print(f"Using ID token: {id_token[:20]}...")
