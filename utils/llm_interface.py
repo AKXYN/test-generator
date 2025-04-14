@@ -2,6 +2,7 @@ import os
 import openai
 import json
 import streamlit as st
+from typing import List, Dict, Tuple, Optional
 
 # Initialize OpenAI client with error handling
 try:
@@ -28,24 +29,21 @@ except Exception as e:
     print(f"Available secrets: {list(st.secrets.keys()) if hasattr(st, 'secrets') else 'No secrets available'}")
     client = None
 
-def generate_questions(core_values, num_questions):
+def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 10) -> Tuple[List[Dict[str, str]], Optional[str]]:
     """
-    Generate questions based on core values using OpenAI API.
-    
-    Args:
-        core_values (list): List of core values
-        num_questions (int): Number of questions to generate
-        
-    Returns:
-        tuple: (questions, error_message) where error_message is None if successful
+    Generate questions based on core values using OpenAI's API.
+    Returns a tuple of (questions, error_message).
     """
     try:
-        # If OpenAI client is not initialized, use sample questions
-        if not client:
-            error_msg = "OpenAI client not initialized. Check your OPENAI_API_KEY in Streamlit secrets or .env file."
-            print(error_msg)
-            return create_sample_questions(core_values, num_questions), error_msg
-
+        # Get API key from nested secrets structure
+        api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
+        
+        if not api_key:
+            raise ValueError("OpenAI API key not found in secrets")
+        
+        # Initialize OpenAI client
+        client = openai.OpenAI(api_key=api_key)
+        
         # Ensure num_questions is an integer
         num_questions = int(num_questions)
         
