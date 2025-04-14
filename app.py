@@ -31,18 +31,19 @@ if "page" not in st.session_state:
 # Main function
 def main():
     """Main function to run the Streamlit app."""
-    # Navigation
-    if "user" not in st.session_state:
+    # App title
+    st.title("Core Values Test Generator")
+    
+    # Page routing
+    if st.session_state.page == "login":
         login_page()
-    else:
-        if st.session_state.page == "core_values":
-            core_values_page()
-        elif st.session_state.page == "test_generation":
-            test_generation_page()
+    elif st.session_state.page == "core_values":
+        core_values_page()
+    elif st.session_state.page == "test_generation":
+        test_generation_page()
 
 # Login page
 def login_page():
-    st.title("Core Values Test Generator")
     st.subheader("Login")
     
     with st.form("login_form"):
@@ -74,7 +75,6 @@ def core_values_page():
     # Load existing core values
     if not st.session_state.core_values:
         st.session_state.core_values = get_core_values(user_id, id_token)
-        st.write("Loaded core values from database:", st.session_state.core_values)
     
     # Display existing core values
     if st.session_state.core_values:
@@ -165,26 +165,6 @@ def test_generation_page():
             if error_msg:
                 st.warning("⚠️ GPT-4 failed to generate questions. Using sample questions instead.")
                 st.error(f"Error details: {error_msg}")
-                
-                # Show more specific help based on the error
-                if "not initialized" in error_msg.lower():
-                    st.info("""
-                    The OpenAI API key is not properly configured. To fix this:
-                    
-                    1. Go to your Streamlit Cloud dashboard
-                    2. Select your app
-                    3. Click on 'Settings' (gear icon)
-                    4. Go to 'Secrets' tab
-                    5. Add your OpenAI API key in this format:
-                    ```
-                    [secrets]
-                    OPENAI_API_KEY = "your-api-key-here"
-                    ```
-                    6. Make sure to include the [secrets] section header
-                    7. Save and redeploy your app
-                    """)
-                else:
-                    st.info("This could be due to: 1) Invalid API key 2) API rate limits 3) Network issues")
             
             if not questions:
                 st.error("Failed to generate questions. Please try again.")
