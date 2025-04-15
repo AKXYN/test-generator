@@ -206,7 +206,7 @@ def test_generation_page():
                 
                 # Add button to view in dashboard
                 if st.button("View in Dashboard"):
-                    st.markdown(f"[Open Dashboard](https://{company_name}.github.io/core-values-app/dashboard.html)")
+                    st.markdown("[Open Dashboard](https://akxyn.github.io/core-values/dashboard.html)")
             else:
                 st.error("Failed to save test. Please try again.")
     
