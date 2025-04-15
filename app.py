@@ -189,6 +189,7 @@ def test_generation_page():
             test_id = save_test(user_id, test_data, id_token)
             
             if test_id:
+                st.session_state.test_data = test_data  # Store test data in session state
                 st.success("Test generated successfully!")
                 st.info("Please refresh your dashboard to see the new test.")
                 
@@ -196,19 +197,19 @@ def test_generation_page():
                 with st.expander("View Generated Test"):
                     st.json(test_data)
                 
-                # Provide download option
-                st.download_button(
-                    "Download Test as JSON",
-                    data=json.dumps(test_data, indent=2),
-                    file_name=f"{test_name.lower().replace(' ', '_')}.json",
-                    mime="application/json"
-                )
-                
                 # Add button to view in dashboard
-                if st.button("View in Dashboard"):
-                    st.markdown("[Open Dashboard](https://akxyn.github.io/core-values/dashboard.html)")
+                st.link_button("View in Dashboard", "https://akxyn.github.io/core-values/dashboard.html")
             else:
                 st.error("Failed to save test. Please try again.")
+    
+    # Provide download option (moved outside the success block)
+    if st.session_state.test_data:
+        st.download_button(
+            "Download Test as JSON",
+            data=json.dumps(st.session_state.test_data, indent=2),
+            file_name=f"{st.session_state.test_data['name'].lower().replace(' ', '_')}.json",
+            mime="application/json"
+        )
     
     # Navigation buttons
     col1, col2 = st.columns(2)
