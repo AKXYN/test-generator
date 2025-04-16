@@ -27,21 +27,12 @@ if 'test_data' not in st.session_state:
     st.session_state.test_data = None
 if "page" not in st.session_state:
     st.session_state.page = "login"
-if "id_token" not in st.session_state:
-    st.session_state.id_token = None
 
 # Main function
 def main():
     """Main function to run the Streamlit app."""
     # App title
     st.title("Core Values Test Generator")
-    
-    # Check for existing session
-    if st.session_state.user is not None and st.session_state.id_token is not None:
-        if st.session_state.page == "login":
-            st.session_state.page = "core_values"
-            st.rerun()
-        return
     
     # Page routing
     if st.session_state.page == "login":
@@ -64,7 +55,6 @@ def login_page():
         user = login_user(email, password)
         if user:
             st.session_state.user = user
-            st.session_state.id_token = user.get("idToken")
             st.session_state.page = "core_values"
             st.success("Login successful!")
             st.rerun()
@@ -80,7 +70,7 @@ def core_values_page():
     
     # Get user ID from session state
     user_id = st.session_state.user.get("uid") or st.session_state.user.get("localId")
-    id_token = st.session_state.id_token
+    id_token = st.session_state.user.get("idToken")
     
     # Load existing core values
     if not st.session_state.core_values:
@@ -150,7 +140,7 @@ def test_generation_page():
     # Get user ID from either uid or localId
     user_id = user.get("uid") or user.get("localId")
     company_name = user.get("email", "").split("@")[1].split(".")[0]
-    id_token = st.session_state.id_token
+    id_token = st.session_state.user.get("idToken")
     
     st.title("Generate Test")
     
