@@ -3,7 +3,6 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
-from google.cloud import firestore
 
 # Load environment variables
 load_dotenv()
@@ -363,18 +362,33 @@ def save_test(user_id, test_data, id_token):
 def get_company_name(admin_email, id_token):
     """Get company name from Firestore companies collection."""
     try:
-        # Query the companies collection for the admin's email
-        companies_ref = firestore.Client().collection('companies')
-        query = companies_ref.where('adminEmail', '==', admin_email).limit(1)
-        docs = query.get()
+        # Get Firestore URL for companies
+        firestore_url = f"{FIREBASE_FIRESTORE_URL}/companies"
         
-        if not docs:
+        # Set up headers
+        headers = {
+            "Authorization": f"Bearer {id_token}",
+            "Content-Type": "application/json"
+        }
+        
+        # Make the request to Firestore
+        response = requests.get(
+            firestore_url,
+            headers=headers
+        )
+        
+        if response.status_code == 200:
+            # Find the company with matching adminEmail
+            data = response.json()
+            for doc in data.get("documents", []):
+                fields = doc.get("fields", {})
+                if fields.get("adminEmail", {}).get("stringValue") == admin_email:
+                    return fields.get("name", {}).get("stringValue")
+            return None
+        else:
+            print(f"Error getting company name: {response.status_code}")
             return None
             
-        # Get the company name from the first document
-        company_doc = docs[0]
-        return company_doc.get('name')
-        
     except Exception as e:
         print(f"Error getting company name: {e}")
         return None 
