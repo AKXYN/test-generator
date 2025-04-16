@@ -3,6 +3,7 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+from google.cloud import firestore
 
 # Load environment variables
 load_dotenv()
@@ -357,4 +358,23 @@ def save_test(user_id, test_data, id_token):
         print(f"Error in save_test: {str(e)}")
         import traceback
         print(traceback.format_exc())
+        return None
+
+def get_company_name(admin_email, id_token):
+    """Get company name from Firestore companies collection."""
+    try:
+        # Query the companies collection for the admin's email
+        companies_ref = firestore.Client().collection('companies')
+        query = companies_ref.where('adminEmail', '==', admin_email).limit(1)
+        docs = query.get()
+        
+        if not docs:
+            return None
+            
+        # Get the company name from the first document
+        company_doc = docs[0]
+        return company_doc.get('name')
+        
+    except Exception as e:
+        print(f"Error getting company name: {e}")
         return None 
