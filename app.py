@@ -44,6 +44,12 @@ def main():
 
 # Login page
 def login_page():
+    # Check if user is already logged in
+    if st.session_state.user is not None:
+        st.session_state.page = "core_values"
+        st.rerun()
+        return
+    
     st.subheader("Login")
     
     with st.form("login_form"):
