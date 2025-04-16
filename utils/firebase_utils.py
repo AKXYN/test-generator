@@ -258,7 +258,6 @@ def save_test(user_id, test_data, id_token):
         # Format test data for Firestore
         formatted_data = {
             "fields": {
-                "name": {"stringValue": test_data["name"]},
                 "company": {"stringValue": test_data["company"]},
                 "core_values": {
                     "arrayValue": {
@@ -274,6 +273,9 @@ def save_test(user_id, test_data, id_token):
                         ]
                     }
                 },
+                "created_at": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "end_date": {"timestampValue": (datetime.now() + timedelta(days=30)).isoformat() + "Z"},
+                "name": {"stringValue": test_data["name"]},
                 "questions": {
                     "arrayValue": {
                         "values": [
@@ -301,13 +303,11 @@ def save_test(user_id, test_data, id_token):
                         ]
                     }
                 },
-                "created_at": {"timestampValue": datetime.now().isoformat() + "Z"},
-                "updated_at": {"timestampValue": datetime.now().isoformat() + "Z"},
                 "start_date": {"timestampValue": datetime.now().isoformat() + "Z"},
-                "end_date": {"timestampValue": (datetime.now() + timedelta(days=30)).isoformat() + "Z"},
-                "user_id": {"stringValue": user_id},
                 "status": {"stringValue": "draft"},
-                "students": {"arrayValue": {"values": []}}
+                "students": {"arrayValue": {"values": []}},
+                "updated_at": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "user_id": {"stringValue": user_id},
             }
         }
         
@@ -332,11 +332,11 @@ def save_test(user_id, test_data, id_token):
         print(f"Error in save_test: {e}")
         return None
 
-def get_company_name(admin_email, id_token):
+def get_company_name(user_id, id_token):
     """Get company name from Firestore companies collection."""
     try:
-        # Get Firestore URL for companies
-        firestore_url = f"{FIREBASE_FIRESTORE_URL}/companies"
+        # Get Firestore URL for specific company document using user_id as document ID
+        firestore_url = f"{FIREBASE_FIRESTORE_URL}/companies/{user_id}"
         
         # Set up headers
         headers = {
@@ -351,13 +351,10 @@ def get_company_name(admin_email, id_token):
         )
         
         if response.status_code == 200:
-            # Find the company with matching adminEmail
+            # Get the company document directly
             data = response.json()
-            for doc in data.get("documents", []):
-                fields = doc.get("fields", {})
-                if fields.get("adminEmail", {}).get("stringValue") == admin_email:
-                    return fields.get("name", {}).get("stringValue")
-            return None
+            fields = data.get("fields", {})
+            return fields.get("name", {}).get("stringValue")
         else:
             print(f"Error getting company name: {response.status_code}")
             return None
