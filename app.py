@@ -96,7 +96,7 @@ def core_values_page():
     
     # Add new core value
     st.write("Add a new core value:")
-    with st.form("core_value_form"):
+    with st.form("core_value_form", clear_on_submit=True):
         name = st.text_input("Name")
         description = st.text_area("Description")
         submit_button = st.form_submit_button("Add Core Value")
