@@ -142,7 +142,7 @@ def test_generation_page():
     id_token = st.session_state.user.get("idToken")
     
     # Get company name from Firestore
-    company_name = get_company_name(user.get("email"), id_token)
+    company_name = get_company_name(user_id, id_token)
     
     st.title("Generate Test")
     
