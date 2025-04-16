@@ -3,6 +3,8 @@ import json
 import requests
 from dotenv import load_dotenv
 from datetime import datetime, timedelta
+import time
+import uuid
 
 # Load environment variables
 load_dotenv()
@@ -246,7 +248,7 @@ def get_core_values(user_id, id_token):
 def save_test(user_id, test_data, id_token):
     """Save a test to Firestore."""
     try:
-        # Get Firestore URL for tests
+        # Get Firestore URL for tests collection (let Firestore generate the document ID)
         firestore_url = f"{FIREBASE_FIRESTORE_URL}/tests"
         
         # Set up headers
@@ -324,12 +326,9 @@ def save_test(user_id, test_data, id_token):
             test_id = data["name"].split("/")[-1]
             return test_id
         else:
-            print(f"Error saving test: {response.status_code}")
-            print(f"Response: {response.text}")
             return None
             
     except Exception as e:
-        print(f"Error in save_test: {e}")
         return None
 
 def get_company_name(user_id, id_token):
