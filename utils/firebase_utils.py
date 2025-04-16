@@ -244,23 +244,10 @@ def get_core_values(user_id, id_token):
 
 # Test functions
 def save_test(user_id, test_data, id_token):
-    """
-    Save a test to Firestore in a format compatible with the dashboard.
-    
-    Args:
-        user_id (str): User ID
-        test_data (dict): Test data
-        id_token (str): Firebase ID token
-        
-    Returns:
-        str: Test ID if successful, None otherwise
-    """
+    """Save a test to Firestore."""
     try:
-        # Get Firestore URL for tests - using the top-level tests collection
+        # Get Firestore URL for tests
         firestore_url = f"{FIREBASE_FIRESTORE_URL}/tests"
-        
-        print(f"\nSaving test to URL: {firestore_url}")
-        print(f"Using ID token: {id_token[:20]}...")
         
         # Set up headers
         headers = {
@@ -268,13 +255,7 @@ def save_test(user_id, test_data, id_token):
             "Content-Type": "application/json"
         }
         
-        # Get current date for start and end dates
-        current_date = datetime.now()
-        # Set start date to today and end date to 30 days from now
-        start_date = current_date
-        end_date = current_date + timedelta(days=30)
-        
-        # Format test data for Firestore with snake_case field names and required fields
+        # Format test data for Firestore
         formatted_data = {
             "fields": {
                 "name": {"stringValue": test_data["name"]},
@@ -286,7 +267,7 @@ def save_test(user_id, test_data, id_token):
                                 "mapValue": {
                                     "fields": {
                                         "name": {"stringValue": cv["name"]},
-                                        "description": {"stringValue": cv.get("description", "")}
+                                        "description": {"stringValue": cv["description"]}
                                     }
                                 }
                             } for cv in test_data["core_values"]
@@ -320,17 +301,15 @@ def save_test(user_id, test_data, id_token):
                         ]
                     }
                 },
-                "created_at": {"timestampValue": current_date.isoformat() + "Z"},
-                "updated_at": {"timestampValue": current_date.isoformat() + "Z"},
-                "start_date": {"timestampValue": start_date.isoformat() + "Z"},
-                "end_date": {"timestampValue": end_date.isoformat() + "Z"},
+                "created_at": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "updated_at": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "start_date": {"timestampValue": datetime.now().isoformat() + "Z"},
+                "end_date": {"timestampValue": (datetime.now() + timedelta(days=30)).isoformat() + "Z"},
                 "user_id": {"stringValue": user_id},
                 "status": {"stringValue": "draft"},
-                "students": {"arrayValue": {"values": []}}  # Empty students array
+                "students": {"arrayValue": {"values": []}}
             }
         }
-        
-        print(f"Formatted test data: {json.dumps(formatted_data, indent=2)}")
         
         # Make the request to Firestore
         response = requests.post(
@@ -339,14 +318,10 @@ def save_test(user_id, test_data, id_token):
             json=formatted_data
         )
         
-        print(f"Firestore response status: {response.status_code}")
-        print(f"Firestore response content: {response.text}")
-        
-        if response.status_code == 200:  # Firestore returns 200 for successful creation
+        if response.status_code == 200:
             # Extract test ID from response
             data = response.json()
             test_id = data["name"].split("/")[-1]
-            print(f"Test created with ID: {test_id}")
             return test_id
         else:
             print(f"Error saving test: {response.status_code}")
@@ -354,9 +329,7 @@ def save_test(user_id, test_data, id_token):
             return None
             
     except Exception as e:
-        print(f"Error in save_test: {str(e)}")
-        import traceback
-        print(traceback.format_exc())
+        print(f"Error in save_test: {e}")
         return None
 
 def get_company_name(admin_email, id_token):
