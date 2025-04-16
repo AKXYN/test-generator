@@ -5,7 +5,7 @@ import time
 import json
 
 # Import utility modules
-from utils.firebase_utils import login_user, save_core_values, get_core_values, save_test
+from utils.firebase_utils import login_user, save_core_values, get_core_values, save_test, get_company_name
 from utils.llm_interface import generate_questions
 
 # Load environment variables
