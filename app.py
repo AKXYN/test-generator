@@ -183,10 +183,6 @@ def test_generation_page():
                 st.success("Test generated successfully!")
                 st.info("Please refresh your dashboard to see the new test.")
                 
-                # Display test data for debugging
-                with st.expander("View Generated Test"):
-                    st.json(test_data)
-                
                 # Add button to view in dashboard
                 st.link_button("View in Dashboard", "https://akxyn.github.io/core-values/dashboard.html")
             else:
