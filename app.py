@@ -34,6 +34,12 @@ def main():
     # App title
     st.title("Core Values Test Generator")
     
+    # Check for existing session
+    if st.session_state.user is not None and st.session_state.page == "login":
+        st.session_state.page = "core_values"
+        st.rerun()
+        return
+    
     # Page routing
     if st.session_state.page == "login":
         login_page()
