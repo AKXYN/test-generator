@@ -161,8 +161,8 @@ def test_generation_page():
             questions, error_msg = generate_questions(core_values, num_questions)
             
             if error_msg:
-                st.warning("⚠️ GPT-4 failed to generate questions. Using sample questions instead.")
-                st.error(f"Error details: {error_msg}")
+                st.error("⚠️ Unable to generate questions at this time. Please try again later or contact support.")
+                st.warning("Note: This might be due to temporary service limitations.")
             
             if not questions:
                 st.error("Failed to generate questions. Please try again.")
