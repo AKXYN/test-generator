@@ -87,7 +87,6 @@ def core_values_page():
                 if st.button("Delete", key=f"delete_{i}"):
                     st.session_state.core_values.pop(i)
                     if save_core_values(user_id, st.session_state.core_values, id_token):
-                        st.success("Core value deleted successfully!")
                         st.rerun()
                     else:
                         st.error("Failed to delete core value. Please try again.")
@@ -108,7 +107,6 @@ def core_values_page():
         }
         st.session_state.core_values.append(new_core_value)
         if save_core_values(user_id, st.session_state.core_values, id_token):
-            st.success(f"Core value '{name}' added successfully!")
             st.rerun()
         else:
             st.error("Failed to save core value. Please try again.")
