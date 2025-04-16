@@ -185,17 +185,16 @@ def test_generation_page():
                 
                 # Add button to view in dashboard
                 st.link_button("View in Dashboard", "https://akxyn.github.io/core-values/dashboard.html")
+                
+                # Download button inside success block
+                st.download_button(
+                    "Download Test as JSON",
+                    data=json.dumps(test_data, indent=2),
+                    file_name=f"{test_name.lower().replace(' ', '_')}.json",
+                    mime="application/json"
+                )
             else:
                 st.error("Failed to save test. Please try again.")
-    
-    # Provide download option (moved outside the success block)
-    if st.session_state.test_data:
-        st.download_button(
-            "Download Test as JSON",
-            data=json.dumps(st.session_state.test_data, indent=2),
-            file_name=f"{st.session_state.test_data['name'].lower().replace(' ', '_')}.json",
-            mime="application/json"
-        )
     
     # Navigation buttons
     col1, col2 = st.columns(2)
