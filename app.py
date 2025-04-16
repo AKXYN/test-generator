@@ -122,8 +122,12 @@ def core_values_page():
             st.rerun()
     with col2:
         if st.button("Generate Test"):
-            st.session_state.page = "test_generation"
-            st.rerun()
+            # Ensure core values are saved before proceeding
+            if save_core_values(user_id, st.session_state.core_values, id_token):
+                st.session_state.page = "test_generation"
+                st.rerun()
+            else:
+                st.error("Failed to save core values. Please try again before proceeding.")
 
 # Test generation page
 def test_generation_page():
