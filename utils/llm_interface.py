@@ -1,99 +1,82 @@
 import os
-import openai
 import json
-import streamlit as st
+import requests
+# import streamlit as st
 from typing import List, Dict, Tuple, Optional
 
-# Global client variable
-client = None
-
-# Initialize OpenAI client with error handling
-try:
-    # Get API key from secrets
-    api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
-    print(f"API key from secrets: {api_key[:5]}...")  # Print first 5 chars for debugging
-    
-    # Initialize OpenAI client
-    client = openai.OpenAI(api_key=api_key)
-    print("OpenAI client initialized successfully")
-except Exception as e:
-    print(f"Warning: OpenAI client initialization failed: {str(e)}")
-    print(f"Available secrets: {list(st.secrets['secrets'].keys())}")
+# Hugging Face API settings
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
+HEADERS = {
+    "Authorization": f"Bearer {st.secrets['secrets']['HF_API_KEY']}"
+}
 
 def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 10) -> Tuple[List[Dict[str, str]], Optional[str]]:
     """
-    Generate questions based on core values using OpenAI's API.
-    Returns a tuple of (questions, error_message).
+    Generate questions using Hugging Face's Inference API
+    Returns a tuple of (questions, error_message)
     """
-    global client  # Declare client as global
-    
     try:
-        # If OpenAI client is not initialized, try to initialize it again
-        if not client:
-            try:
-                api_key = st.secrets["secrets"]["OPENAI_API_KEY"]
-                client = openai.OpenAI(api_key=api_key)
-            except Exception as e:
-                error_msg = f"OpenAI client initialization failed: {str(e)}"
-                print(error_msg)
-                return create_sample_questions(core_values, num_questions), error_msg
-        
-        # Ensure num_questions is an integer
         num_questions = int(num_questions)
-        
-        # Format core values for the prompt
         core_values_text = "\n".join([
             f"- {cv['name']}: {cv['description']}"
             for cv in core_values
         ])
-        
-        # Create the prompt for OpenAI
-        prompt = f"""You are an expert in creating assessment questions for company core values.
-Given the following core values and their descriptions:
 
+        # Improved prompt for better JSON formatting
+        prompt = f"""<s>[INST] You are an expert in creating assessment questions for company core values.
+Given these core values:
 {core_values_text}
 
-Generate {num_questions} multiple-choice questions that test a candidate's alignment with these core values.
-Each question should:
-1. Be specific to one or more core values
-2. Present a realistic workplace scenario
-3. Have 4 answer options that represent different levels of alignment with the core values
-4. Include scores for each option (8 for most aligned, 6 for somewhat aligned, 4 for somewhat misaligned, 2 for misaligned)
+Generate {num_questions} multiple-choice questions with these requirements:
+1. Specific to one or more core values
+2. Realistic workplace scenarios
+3. 4 answer options with scores (8,6,4,2)
+4. Make sure that it is impossible to guess the option with the highest score. Each option should be a equally viable solution in the workplace
+5. Return ONLY a valid JSON array formatted like:
+[
+  {{
+    "id": 1,
+    "text": "Question text",
+    "core_values": ["Value1"],
+    "options": [
+      {{"text": "Option A", "score": 8}},
+      {{"text": "Option B", "score": 6}}
+    ]
+  }}
+][/INST]
+</s>"""
 
-Format each question as a JSON object with:
-- id: question number
-- text: the question text
-- core_values: list of core values this question tests
-- options: list of answer options, each with text and score
-
-Return only the JSON array of questions, no other text."""
-
-        # Call OpenAI API
-        response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are an expert in creating assessment questions for company core values."},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=2000
+        # Call Hugging Face API
+        response = requests.post(
+            API_URL,
+            headers=HEADERS,
+            json={
+                "inputs": prompt,
+                "parameters": {
+                    "temperature": 0.7,
+                    "max_new_tokens": 2000,
+                    "return_full_text": False
+                }
+            }
         )
-        
-        # Extract and parse the response
-        questions_text = response.choices[0].message.content
+
+        if response.status_code != 200:
+            return create_sample_questions(core_values, num_questions), f"API Error: {response.text}"
+
+        # Try to extract valid JSON
         try:
-            # Try to parse the response as JSON
-            questions = json.loads(questions_text)
+            response_text = response.json()[0]['generated_text']
+            questions = json.loads(response_text.strip())
             return questions, None
-        except json.JSONDecodeError:
-            error_msg = f"Failed to parse OpenAI response as JSON. Response: {questions_text}"
-            print(error_msg)
+        except (json.JSONDecodeError, KeyError) as e:
+            error_msg = f"JSON parsing failed: {str(e)}. Response: {response_text[:200]}..."
             return create_sample_questions(core_values, num_questions), error_msg
             
     except Exception as e:
         error_msg = f"Error generating questions: {str(e)}"
-        print(error_msg)
         return create_sample_questions(core_values, num_questions), error_msg
+
+# Keep create_sample_questions() function the same as before
 
 def create_sample_questions(core_values, num_questions):
     """
