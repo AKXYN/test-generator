@@ -1,7 +1,7 @@
 import os
 import json
 import requests
-# import streamlit as st
+import streamlit as st
 from typing import List, Dict, Tuple, Optional
 
 # Hugging Face API settings
