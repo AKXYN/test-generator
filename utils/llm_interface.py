@@ -5,7 +5,7 @@ import streamlit as st
 from typing import List, Dict, Tuple, Optional
 
 # Hugging Face API settings
-API_URL = "https://api-inference.huggingface.co/models/meta-llama/Llama-3.1-8B-Instruct"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mixtral-8x7B-Instruct-v0.1"
 HEADERS = {
     "Authorization": f"Bearer {st.secrets['secrets']['HF_API_KEY']}"
 }
@@ -23,10 +23,7 @@ def generate_questions(core_values: List[Dict[str, str]], num_questions: int = 1
         ])
 
         # Improved prompt for better JSON formatting
-        prompt = f"""<s>[INST] <<SYS>>
-You are an expert in creating assessment questions for company core values.
-<</SYS>>
-
+        prompt = f"""<s>[INST] You are an expert in creating assessment questions for company core values.
 Given these core values:
 {core_values_text}
 
@@ -34,7 +31,7 @@ Generate {num_questions} multiple-choice questions with these requirements:
 1. Specific to one or more core values
 2. Realistic workplace scenarios
 3. 4 answer options with scores (8,6,4,2)
-4. Ensure that it's impossible to guess the option with the highest score. Each option should be an equally viable solution in the workplace
+4. Make sure that it is impossible to guess the option with the highest score. Each option should be a equally viable solution in the workplace
 5. Return ONLY a valid JSON array formatted like:
 [
   {{
@@ -43,13 +40,10 @@ Generate {num_questions} multiple-choice questions with these requirements:
     "core_values": ["Value1"],
     "options": [
       {{"text": "Option A", "score": 8}},
-      {{"text": "Option B", "score": 6}},
-      {{"text": "Option C", "score": 4}},
-      {{"text": "Option D", "score": 2}}
+      {{"text": "Option B", "score": 6}}
     ]
   }}
-]
-[/INST]
+][/INST]
 </s>"""
 
         # Call Hugging Face API
@@ -60,9 +54,8 @@ Generate {num_questions} multiple-choice questions with these requirements:
                 "inputs": prompt,
                 "parameters": {
                     "temperature": 0.7,
-                    "max_new_tokens": 800,
-                    "return_full_text": True,
-                    "stop": ["</s>"]
+                    "max_new_tokens": 2000,
+                    "return_full_text": False
                 }
             }
         )
