@@ -5,7 +5,7 @@ import streamlit as st
 from typing import List, Dict, Tuple, Optional
 
 # Hugging Face API settings
-API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-Small-24B-Instruct-2501"
+API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2"
 HEADERS = {
     "Authorization": f"Bearer {st.secrets['secrets']['HF_API_KEY']}"
 }
