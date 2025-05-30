@@ -60,8 +60,9 @@ Generate {num_questions} multiple-choice questions with these requirements:
                 "inputs": prompt,
                 "parameters": {
                     "temperature": 0.7,
-                    "max_new_tokens": 2000,
-                    "return_full_text": False
+                    "max_new_tokens": 800,
+                    "return_full_text": True,
+                    "stop": ["</s>"]
                 }
             }
         )
